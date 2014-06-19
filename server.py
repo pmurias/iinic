@@ -118,7 +118,7 @@ class Client(object):
         elif isinstance(e, SetBitrateToken):
             self.setBitrateCommand(e)
         elif isinstance(e, SetPosToken):
-            logging.info('peer %s attempted to set the position', self.peer)
+            self.setPosCommand(e)
         elif isinstance(e, TimingToken):
             self.timingCommand(e)
         elif isinstance(e, PingToken):
@@ -179,6 +179,12 @@ class Client(object):
     def setPowerCommand(self, e):
         logging.info('peer %s :: setPower (%.1fdB)', self.peer, -2.5*e.power)
         self.power = e.power
+        self.nextCommand()
+
+    def setPosCommand(self, e):
+        logging.info('peer %s :: setPos (%d,%d)', self.peer, e.x, e.y)
+        self.x = e.x
+        self.y = e.y
         self.nextCommand()
 
     def setBitrateCommand(self, e):
