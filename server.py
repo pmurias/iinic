@@ -7,7 +7,7 @@ from iinic import extract_token, \
     SetRxKnobsToken, SetPowerToken, SetBitrateToken, SetPosToken, \
     TimingToken, PingToken, TxToken, RxToken \
 
-TxBytes = collections.namedtuple('TxBytes', ('client', 'bytes', 'frequency', 'bitrate', 'duration'))
+TxBytes = collections.namedtuple('TxBytes', ('client', 'bytes', 'frequency', 'bitrate', 'duration','x','y'))
 MyTxToken = collections.namedtuple('MyTxToken', ('buf'))
 
 ### ----------------------------------------------------------------------- ###
@@ -54,6 +54,8 @@ class Client(object):
         self.rxbuf = ''
         self.cmdqueue = []
         self.txqueue = ''
+        self.x = None
+        self.y = None
 
     def fileno(self):
         return self.socket.fileno()
@@ -224,7 +226,9 @@ class Client(object):
             bytes = e.buf,
             frequency = self.frequency,
             bitrate = self.bitrate,
-            duration = (len(e.buf)+4) * 8. / self.bitrate
+            duration = (len(e.buf)+4) * 8. / self.bitrate,
+            y = self.y,
+            x = self.x
         ), self.nextCommand)
 
     def broadcast(self, tx):
@@ -235,6 +239,11 @@ class Client(object):
         if self.frequency is None or \
            self.power is None or \
            self.bitrate is None:
+            return
+
+        if self.x is not None and self.y is not None and \
+           tx.x is not None and tx.y is not None and \
+           (self.x - tx.x) ** 2 + (self.y - tx.y) ** 2 > 100 ** 2:
             return
 
         timing = self.server.time - tx.duration + 5.*8./tx.bitrate - self.treset
