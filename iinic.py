@@ -103,10 +103,13 @@ PingToken = make_token('PingToken', '\x06', '<B', ('seq', ))
 TxToken = make_token('TxToken', '\x07')
 RxToken = make_token('RxToken', '\x08', '<HIH', ('timing_lo', 'timing_hi', 'rssi'))
 
+SetPosToken = make_token('SetPosToken', '\x09', '<ii', ('x', 'y')) # used to set the simulated position of the devices
+
 allTokens = (
     UnescapeToken, ResetRqToken, ResetAckToken,
     SetRxKnobsToken, SetPowerToken, SetBitrateToken,
-    TimingToken, PingToken, TxToken, RxToken
+    TimingToken, PingToken, TxToken, RxToken, 
+    SetPosToken
 )
 
 def extract_token(buf):
@@ -287,6 +290,11 @@ class NIC(object):
             power = power
         ).serialize())
         self._power = power
+
+    def set_pos(self, x, y):
+        self._comm.send(SetPosToken(
+            x = x, y = y
+        ).serialize())
 
     def tx(self, payload, overrun_fail=True, deadline=None):
         if not payload:

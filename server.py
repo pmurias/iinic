@@ -4,7 +4,7 @@ import math, random, collections, heapq, logging, time, socket, select, errno
 from iinic import extract_token, \
     PlainByteToken, \
     UnescapeToken, ResetRqToken, ResetAckToken, \
-    SetRxKnobsToken, SetPowerToken, SetBitrateToken, \
+    SetRxKnobsToken, SetPowerToken, SetBitrateToken, SetPosToken, \
     TimingToken, PingToken, TxToken, RxToken \
 
 TxBytes = collections.namedtuple('TxBytes', ('client', 'bytes', 'frequency', 'bitrate', 'duration'))
@@ -117,6 +117,8 @@ class Client(object):
             self.setPowerCommand(e)
         elif isinstance(e, SetBitrateToken):
             self.setBitrateCommand(e)
+        elif isinstance(e, SetPosToken):
+            logging.info('peer %s attempted to set the position', self.peer)
         elif isinstance(e, TimingToken):
             self.timingCommand(e)
         elif isinstance(e, PingToken):
